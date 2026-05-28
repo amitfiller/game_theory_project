@@ -81,7 +81,7 @@ class MetricsReport:
 
     def summary(self) -> str:
         lines = [
-            "─── Metrics Report ───",
+            "--- Metrics Report ---",
             f"  Utilities       : {self.utilities}",
             f"  Fair shares     : {self.fair_shares}",
             f"  Threat point    : {self.threat_point}",
