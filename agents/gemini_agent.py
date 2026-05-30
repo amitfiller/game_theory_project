@@ -75,7 +75,22 @@ class GeminiAgent(AbstractAgent):
             use_workflow=use_workflow,
         )
 
-        self.fallback_count = 0  # track how often the LLM produces infeasible output
+        self.fallback_count = 0     # how often the LLM produced infeasible/invalid output
+        self.envy_rejections = 0    # how often the envy-gate vetoed an enviable LLM proposal
+        self.reject_overrides = 0   # how often the reject-guardrail converted reject->counter
+
+    # ── belief observation (override to keep fallback in sync) ────────
+
+    def observe(self, opponent_self_bundle):
+        """
+        Centralised belief update, overridden so the HeuristicAgent fallback's
+        belief stays perfectly synchronised with the primary agent's belief.
+
+        Without this, a mid-game fallback would act on a stale posterior.
+        The protocol calls this exactly once per round.
+        """
+        self.belief.update(opponent_self_bundle)
+        self._fallback.belief.update(opponent_self_bundle)
 
     # ── propose ───────────────────────────────────────────────────────
 
@@ -113,6 +128,27 @@ class GeminiAgent(AbstractAgent):
                     f"Infeasible allocation from LLM: {bundles}. "
                     f"Pool={self.item_pool}"
                 )
+
+            # ── Envy-Free enforcement gate (workflow condition only) ──────────
+            # The workflow PROMISES envy-free proposals. The prompt requests them,
+            # but an LLM can still emit an enviable split. Here we VERIFY it in
+            # pure Python: under our current belief, would the opponent prefer our
+            # bundle to theirs? If so, we reject the LLM's proposal and substitute
+            # the HeuristicAgent's rational, fairness-constrained proposal. This is
+            # what makes "the workflow guarantees fairness" a true statement rather
+            # than a hopeful one.
+            if self.use_workflow:
+                my_bundle = bundles[self.agent_id]
+                opp_bundle = bundles[opponent_id]
+                if self.belief.would_opponent_envy(my_bundle, opp_bundle):
+                    self.envy_rejections += 1
+                    print(
+                        f"    [GeminiAgent {self.agent_id}] envy-gate: LLM proposal "
+                        f"is enviable under belief -> substituting heuristic "
+                        f"envy-aware proposal (#{self.envy_rejections})"
+                    )
+                    return self._fallback.propose(history)
+
             return Proposal(
                 proposer_id=self.agent_id,
                 bundles=bundles,
@@ -134,14 +170,13 @@ class GeminiAgent(AbstractAgent):
         """
         Respond to an incoming Proposal via Gemini structured output.
 
-        Updates the Bayesian belief (pure Python — never delegated to LLM),
-        then asks Gemini to decide: accept / reject / counter.
-        """
-        # Always update belief in pure Python (correct, testable, not hallucinated)
-        proposer_bundle = proposal.bundle_of(proposal.proposer_id)
-        self.belief.update(proposer_bundle)
-        self._fallback.belief.update(proposer_bundle)
+        Asks Gemini to decide: accept / reject / counter.
 
+        Note: belief updates are NOT performed here. The protocol calls
+        self.observe(...) once per round (before respond), keeping both this
+        agent's belief and its fallback's belief synchronised. The Bayesian
+        math itself remains pure Python — never delegated to the LLM.
+        """
         opponent_id = proposal.proposer_id
         my_utility = self.valuation.utility_of(proposal.bundle_of(self.agent_id))
         proposal_text = self._format_proposal_for_prompt(proposal)
@@ -204,6 +239,29 @@ class GeminiAgent(AbstractAgent):
             )
 
         if action == "reject":
+            # ── Reject guardrail ──────────────────────────────────────────────
+            # A reject terminates the game and activates the threat point d=(0,0):
+            # BOTH agents get zero. That is only rational in the final round, when
+            # no further counter can help. If the LLM rejects with rounds still
+            # remaining, we override it: convert the reject into a counter-proposal
+            # carrying this agent's own fair-share-maximising bundle (computed by
+            # the deterministic heuristic), keeping the negotiation alive.
+            if original_proposal.round_num < self.env.max_rounds:
+                self.reject_overrides += 1
+                counter = self._fallback.propose(history)
+                print(
+                    f"    [GeminiAgent {self.agent_id}] reject-guardrail: LLM "
+                    f"rejected in round {original_proposal.round_num}/"
+                    f"{self.env.max_rounds} -> converted to counter "
+                    f"(#{self.reject_overrides})"
+                )
+                return CounterProposal(
+                    responder_id=self.agent_id,
+                    rejected_proposal=original_proposal,
+                    counter=counter,
+                    reasoning=tag + "[reject->counter guardrail] " + output.reasoning,
+                )
+            # Final round: a genuine walk-away is permitted.
             return Reject(
                 responder_id=self.agent_id,
                 rejected_proposal=original_proposal,

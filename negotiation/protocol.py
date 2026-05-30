@@ -148,7 +148,21 @@ class NegotiationProtocol:
             if proposal.reasoning:
                 self._log(f"  reasoning : {textwrap.shorten(proposal.reasoning, 120)}")
 
-            # ── Step 2: responder observes and reacts ────────────────
+            # ── Step 2: CENTRALISED belief update (exactly once per round) ─
+            # The responder observes what the proposer kept for themselves — a
+            # signal about the proposer's private valuation — and updates its
+            # belief BEFORE deciding. This is the single belief-update site in
+            # the whole system: no in-agent updates, no double-counting. Over
+            # alternating rounds each agent is updated once per cycle, so both
+            # posteriors stay calibrated. observe() also syncs any fallback agent.
+            proposer_kept = proposal.bundle_of(proposer.agent_id)
+            responder.observe(proposer_kept)
+            self._log(
+                f"  [Belief update] {responder.agent_id} observes "
+                f"{proposer.agent_id}'s self-allocation: {proposer_kept}"
+            )
+
+            # ── Step 3: responder reacts (on the freshly-updated belief) ──
             response = responder.respond(proposal, history)
             self._log(f"  RESPONSE  : {response}")
             if hasattr(response, "reasoning") and response.reasoning:
@@ -157,7 +171,7 @@ class NegotiationProtocol:
             # Record in history
             history.append((round_num, proposer.agent_id, proposal, response))
 
-            # ── Step 3: handle terminal responses ────────────────────
+            # ── Step 4: handle terminal responses ────────────────────
             if isinstance(response, Accept):
                 return self._finish_deal(proposal, round_num, history)
 
@@ -165,18 +179,8 @@ class NegotiationProtocol:
                 self._log(f"\n  !! {responder.agent_id} REJECTED — no deal (threat point: both get 0)")
                 return self._finish_no_deal("reject", round_num, history)
 
-            # ── Step 4: counter-proposal — update beliefs, swap roles ─
+            # ── Step 5: counter-proposal — swap roles for next round ──
             if isinstance(response, CounterProposal):
-                # The PROPOSER now observes what the responder wants for themselves
-                # This is the Bayesian signal: what did the opponent allocate to themselves?
-                counter_self_bundle = response.counter.bundle_of(responder.agent_id)
-                proposer.belief.update(counter_self_bundle)
-                self._log(
-                    f"  [Belief update] {proposer.agent_id} observes "
-                    f"{responder.agent_id}'s self-allocation: {counter_self_bundle}"
-                )
-
-                # Swap roles for next round
                 proposer, responder = responder, proposer
                 self._log("")
 

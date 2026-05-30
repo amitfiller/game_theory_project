@@ -74,9 +74,11 @@ LLM_MAX_RETRIES: int = int(os.getenv("LLM_MAX_RETRIES", "3"))
 # Seconds between retries (exponential backoff base)
 LLM_RETRY_BACKOFF: float = float(os.getenv("LLM_RETRY_BACKOFF", "2.0"))
 
-# Generation temperature: 0.0 = deterministic, higher = more creative
-# Keep low for game-theory agents — we want rational, consistent play
-LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.2"))
+# Generation temperature: 0.0 = deterministic, higher = more creative.
+# Set to 0.0 for maximum reproducibility — game-theory agents should play
+# rationally and consistently, and a fixed temperature makes live runs as
+# replayable as the API allows (transcripts are still archived as ground truth).
+LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.0"))
 
 # Minimum seconds between consecutive LIVE API calls (RPM safety throttle).
 # Even with billing enabled, this protects against strict requests-per-minute

@@ -18,9 +18,9 @@ import time
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Type, TypeVar
+from typing import List, Literal, Optional, Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from google import genai
 from google.genai import types
 
@@ -33,7 +33,10 @@ import config
 class ItemCount(BaseModel):
     """One item and how many units the agent receives."""
     name: str
-    count: int
+    # ge=0: counts can never be negative. Pydantic rejects a negative count at
+    # parse time, which trips the client retry/fallback rather than silently
+    # producing an "infeasible-but-schema-valid" allocation.
+    count: int = Field(ge=0)
 
 
 class ProposeOutput(BaseModel):
@@ -49,10 +52,13 @@ class ProposeOutput(BaseModel):
 class RespondOutput(BaseModel):
     """
     Schema for a respond action.
-    action  : 'accept' | 'reject' | 'counter'
+    action  : constrained to exactly 'accept' | 'reject' | 'counter'
     bundles : only populated when action == 'counter'
     """
-    action: str
+    # Literal → JSON-schema enum, enforced by Gemini Structured Outputs. The
+    # model physically cannot return a value outside this set, removing the
+    # "is this string a counter?" ambiguity entirely.
+    action: Literal["accept", "reject", "counter"]
     my_bundle: List[ItemCount]
     opponent_bundle: List[ItemCount]
     reasoning: str
@@ -229,15 +235,22 @@ class GeminiClient:
         raw_response: str,
         attempt: int,
     ) -> None:
-        """Append one API call record to the session JSONL log."""
+        """
+        Append one API call record to the session JSONL log.
+
+        We store the FULL prompts and response (no truncation). Each line is a
+        json.dumps(...) of the record, so the .jsonl stays strictly valid JSON
+        and the nested `response` field remains a parseable JSON document — you
+        can json.loads(record["response"]) without hitting truncated strings.
+        """
         record = {
             "id": str(uuid.uuid4()),
             "ts": datetime.now().isoformat(),
             "model": config.GEMINI_MODEL,
             "attempt": attempt,
-            "system_prompt": system_prompt[:500],   # truncate for log size
-            "turn_prompt": turn_prompt[:500],
-            "response": raw_response[:1000],
+            "system_prompt": system_prompt,
+            "turn_prompt": turn_prompt,
+            "response": raw_response,
         }
         with open(self._log_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(record) + "\n")
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")

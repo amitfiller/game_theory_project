@@ -161,11 +161,12 @@ class HeuristicAgent(AbstractAgent):
         ----------
         proposal : the incoming offer
         history  : prior game events (used by LLM agents; heuristic agent ignores it)
-        """
-        # Update own belief about the proposer based on what they kept
-        proposer_bundle = proposal.bundle_of(proposal.proposer_id)
-        self.belief.update(proposer_bundle)
 
+        Note: belief updates are NO LONGER performed here. The protocol calls
+        self.observe(...) exactly once per round before respond(), so by the
+        time we reach this method self.belief already reflects the proposer's
+        latest signal. This removes the old double-counting bug.
+        """
         my_bundle = proposal.bundle_of(self.agent_id)
         my_utility = self.valuation.utility_of(my_bundle)
         threshold = self.accept_threshold * self.own_fair_share

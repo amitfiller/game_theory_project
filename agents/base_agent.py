@@ -16,7 +16,7 @@ Design principle (Lesson 3 – Strategies):
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from game.allocation import Valuation
 from game.environment import GameEnvironment
@@ -92,6 +92,29 @@ class AbstractAgent(ABC):
         proposal : the incoming offer from the other agent
         history  : all events prior to this response
         """
+
+    # ── belief observation (centralised update hook) ──────────────────
+
+    def observe(self, opponent_self_bundle: Dict[str, int]) -> None:
+        """
+        Update this agent's belief about the opponent from an observed signal.
+
+        This is the SINGLE entry point for Bayesian belief updates. The
+        NegotiationProtocol calls it exactly once per round (on the responder,
+        observing what the proposer kept for themselves). Centralising the
+        update here — instead of scattering belief.update() calls inside
+        respond() — guarantees:
+          1. Each observation is counted exactly once (no double-counting /
+             posterior overconfidence).
+          2. Subclasses can override to keep auxiliary beliefs in sync (e.g.
+             GeminiAgent also syncs its HeuristicAgent fallback's belief).
+
+        Parameters
+        ----------
+        opponent_self_bundle : the bundle the opponent allocated to themselves
+                               (a high-value signal about their private valuation)
+        """
+        self.belief.update(opponent_self_bundle)
 
     # ── shared helpers ────────────────────────────────────────────────
 
