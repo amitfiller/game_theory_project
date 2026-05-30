@@ -1,0 +1,81 @@
+=== Negotiation Start ===
+    Item pool : {'book': 3, 'hat': 2, 'ball': 1}
+    Max rounds: 10
+
+--- Round 1 | Proposer: A ---
+  PROPOSAL  : Proposal(round=1, by=A, [A: {'ball': 1, 'hat': 2} | B: {'book': 3}])
+  reasoning : [Gemini|workflow] Step 1 – BELIEF: Based on the initial belief state, the opponent values books (3.5) most, then [...]
+  RESPONSE  : CounterProposal(by=B, round=1 -> Proposal(round=1, by=B, [B: {'book': 3, 'hat': 1} | A: {'hat': 1, 'ball': 1}]))
+  reasoning : [Gemini|workflow] The initial offer of 3 books for me was too low, providing only 3 points compared to my fair [...]
+  [Belief update] A observes B's self-allocation: {'book': 3, 'hat': 1}
+
+--- Round 2 | Proposer: B ---
+  PROPOSAL  : Proposal(round=2, by=B, [B: {'hat': 1, 'ball': 1, 'book': 1} | A: {'book': 2, 'hat': 1}])
+  reasoning : [Gemini|workflow] Step 1 - BELIEF: Opponent's estimated valuations are hat≈7.5, book≈1.2, ball≈1.4. Their total [...]
+  RESPONSE  : CounterProposal(by=A, round=2 -> Proposal(round=2, by=A, [A: {'book': 2, 'ball': 1} | B: {'book': 1, 'hat': 2}]))
+  reasoning : [Gemini|workflow] The current offer gives me 9 points, which is below my fair share of 9.5 points. My counter- [...]
+  [Belief update] B observes A's self-allocation: {'book': 2, 'ball': 1}
+
+--- Round 3 | Proposer: A ---
+  PROPOSAL  : Proposal(round=3, by=A, [A: {'book': 1, 'hat': 2, 'ball': 1} | B: {'book': 2}])
+  reasoning : [Gemini|workflow] Step 1 – BELIEF: My belief state indicates the opponent values books significantly more than [...]
+  RESPONSE  : CounterProposal(by=B, round=3 -> Proposal(round=3, by=B, [B: {'book': 3, 'hat': 1} | A: {'hat': 1, 'ball': 1}]))
+  reasoning : [Gemini|workflow] The previous offer of 2 books for me was significantly below my fair share of 9 points. My [...]
+  [Belief update] A observes B's self-allocation: {'book': 3, 'hat': 1}
+
+--- Round 4 | Proposer: B ---
+  PROPOSAL  : Proposal(round=4, by=B, [B: {'hat': 1, 'book': 1, 'ball': 1} | A: {'book': 2, 'hat': 1}])
+  reasoning : [Gemini|workflow] Based on the opponent's past proposals, they seem to value hats highly. My current proposal aims [...]
+  RESPONSE  : CounterProposal(by=A, round=4 -> Proposal(round=4, by=A, [A: {'book': 1, 'hat': 1, 'ball': 1} | B: {'book': 2, 'hat': 1}]))
+  reasoning : [Gemini|workflow] The opponent's proposal offers me 9 points, which is below my fair share of 9.5 points. [...]
+  [Belief update] B observes A's self-allocation: {'book': 1, 'hat': 1, 'ball': 1}
+
+--- Round 5 | Proposer: A ---
+  PROPOSAL  : Proposal(round=5, by=A, [A: {'book': 1, 'hat': 2, 'ball': 1} | B: {'book': 2}])
+  reasoning : [Gemini|workflow] Step 1 – BELIEF: Based on the negotiation history, I believe the opponent values 'book' [...]
+  RESPONSE  : CounterProposal(by=B, round=5 -> Proposal(round=5, by=B, [B: {'hat': 2} | A: {'book': 3, 'ball': 1}]))
+  reasoning : [Gemini|workflow] The previous offer gave me only 2 points, which is far below my fair share of 9 points. My [...]
+  [Belief update] A observes B's self-allocation: {'hat': 2}
+
+--- Round 6 | Proposer: B ---
+  PROPOSAL  : Proposal(round=6, by=B, [B: {'hat': 1, 'ball': 1, 'book': 1} | A: {'book': 2, 'hat': 1}])
+  reasoning : [Gemini|workflow] Based on the opponent's past proposals and estimated valuations, they highly value hats. This [...]
+  RESPONSE  : CounterProposal(by=A, round=6 -> Proposal(round=6, by=A, [A: {'book': 0, 'hat': 2, 'ball': 1} | B: {'book': 3, 'hat': 0, 'ball': 0}]))
+  reasoning : Rejected: utility=9.0 < threshold=9.5. Counter-proposing.
+  [Belief update] B observes A's self-allocation: {'book': 0, 'hat': 2, 'ball': 1}
+
+--- Round 7 | Proposer: A ---
+  PROPOSAL  : Proposal(round=7, by=A, [A: {'book': 0, 'hat': 2, 'ball': 1} | B: {'book': 3, 'hat': 0, 'ball': 0}])
+  reasoning : Maximised own EU=10.0 with opponent expected EU=10.4 (fair share threshold=10.1)
+  RESPONSE  : CounterProposal(by=B, round=7 -> Proposal(round=7, by=B, [A: {'book': 3, 'hat': 1, 'ball': 0} | B: {'book': 0, 'hat': 1, 'ball': 1}]))
+  reasoning : Rejected: utility=3.0 < threshold=9.0. Counter-proposing.
+  [Belief update] A observes B's self-allocation: {'book': 0, 'hat': 1, 'ball': 1}
+
+--- Round 8 | Proposer: B ---
+  PROPOSAL  : Proposal(round=8, by=B, [A: {'book': 3, 'hat': 1, 'ball': 0} | B: {'book': 0, 'hat': 1, 'ball': 1}])
+  reasoning : Maximised own EU=9.0 with opponent expected EU=11.0 (fair share threshold=10.0)
+  RESPONSE  : Accept(by=A, round=8)
+  reasoning : [Gemini|workflow] The proposed bundle gives me 12 points, which is greater than my fair share of 9.5 points. This [...]
+
+  !! DEAL reached in round 8!
+--- Metrics Report ---
+  Utilities       : {'A': 12.0, 'B': 9.0}
+  Fair shares     : {'A': 9.5, 'B': 9.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 21.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : False
+  Above threat pt : True
+=== Game Result ===
+  Outcome       : DEAL (deal)
+  Rounds used   : 8
+  --- Metrics Report ---
+  Utilities       : {'A': 12.0, 'B': 9.0}
+  Fair shares     : {'A': 9.5, 'B': 9.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 21.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : False
+  Above threat pt : True

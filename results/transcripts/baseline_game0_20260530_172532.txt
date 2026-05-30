@@ -1,0 +1,39 @@
+=== Negotiation Start ===
+    Item pool : {'book': 3, 'hat': 2, 'ball': 1}
+    Max rounds: 10
+
+--- Round 1 | Proposer: A ---
+  PROPOSAL  : Proposal(round=1, by=A, [A: {'ball': 1, 'book': 1, 'hat': 1} | B: {'book': 2, 'hat': 1}])
+  reasoning : [Gemini|baseline] This is an opening offer designed to be a fair starting point for negotiation. I've ensured I [...]
+  RESPONSE  : CounterProposal(by=B, round=1 -> Proposal(round=1, by=B, [B: {'hat': 1, 'ball': 1, 'book': 1} | A: {'book': 2, 'hat': 1}]))
+  reasoning : [Gemini|baseline] Your offer gives me 8 points, but I believe we can find a deal that is more beneficial for me. I [...]
+  [Belief update] A observes B's self-allocation: {'hat': 1, 'ball': 1, 'book': 1}
+
+--- Round 2 | Proposer: B ---
+  PROPOSAL  : Proposal(round=2, by=B, [B: {'hat': 1, 'ball': 1} | A: {'book': 3, 'hat': 1}])
+  reasoning : [Gemini|baseline] I'm making a concession from my previous offer, giving you all the books while still securing a [...]
+  RESPONSE  : Accept(by=A, round=2)
+  reasoning : [Gemini|baseline] This offer provides me with 12 points, which is a very good outcome and a significant portion of [...]
+
+  !! DEAL reached in round 2!
+--- Metrics Report ---
+  Utilities       : {'A': 12.0, 'B': 9.0}
+  Fair shares     : {'A': 9.5, 'B': 9.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 21.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : False
+  Above threat pt : True
+=== Game Result ===
+  Outcome       : DEAL (deal)
+  Rounds used   : 2
+  --- Metrics Report ---
+  Utilities       : {'A': 12.0, 'B': 9.0}
+  Fair shares     : {'A': 9.5, 'B': 9.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 21.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : False
+  Above threat pt : True

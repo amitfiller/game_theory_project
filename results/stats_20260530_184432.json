@@ -1,0 +1,24 @@
+{
+  "baseline": {
+    "n": 2,
+    "n_deals": 2,
+    "deal_rate": 1.0,
+    "avg_social_welfare": 22.5,
+    "avg_rounds": 5.0,
+    "pct_pareto": 0.5,
+    "pct_envy_free": 0.0,
+    "pct_proportional": 0.0,
+    "pct_above_threat": 1.0
+  },
+  "workflow": {
+    "n": 2,
+    "n_deals": 2,
+    "deal_rate": 1.0,
+    "avg_social_welfare": 24.5,
+    "avg_rounds": 5.0,
+    "pct_pareto": 1.0,
+    "pct_envy_free": 0.5,
+    "pct_proportional": 0.5,
+    "pct_above_threat": 1.0
+  }
+}

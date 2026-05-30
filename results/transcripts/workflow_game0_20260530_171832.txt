@@ -1,0 +1,80 @@
+=== Negotiation Start ===
+    Item pool : {'book': 3, 'hat': 2, 'ball': 1}
+    Max rounds: 10
+
+--- Round 1 | Proposer: A ---
+  PROPOSAL  : Proposal(round=1, by=A, [A: {'book': 2, 'hat': 0, 'ball': 1} | B: {'book': 1, 'hat': 2, 'ball': 0}])
+  reasoning : Maximised own EU=10.0 with opponent expected EU=9.9 (fair share threshold=9.9)
+  RESPONSE  : CounterProposal(by=B, round=1 -> Proposal(round=1, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}]))
+  reasoning : Rejected: utility=6.0 < threshold=9.5. Counter-proposing.
+  [Belief update] A observes B's self-allocation: {'book': 1, 'hat': 2, 'ball': 1}
+
+--- Round 2 | Proposer: B ---
+  PROPOSAL  : Proposal(round=2, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}])
+  reasoning : Maximised own EU=11.0 with opponent expected EU=15.7 (fair share threshold=13.3)
+  RESPONSE  : CounterProposal(by=A, round=2 -> Proposal(round=2, by=A, [A: {'book': 3, 'hat': 0, 'ball': 1} | B: {'book': 0, 'hat': 2, 'ball': 0}]))
+  reasoning : Rejected: utility=2.0 < threshold=6.5. Counter-proposing.
+  [Belief update] B observes A's self-allocation: {'book': 3, 'hat': 0, 'ball': 1}
+
+--- Round 3 | Proposer: A ---
+  PROPOSAL  : Proposal(round=3, by=A, [A: {'book': 3, 'hat': 0, 'ball': 1} | B: {'book': 0, 'hat': 2, 'ball': 0}])
+  reasoning : Maximised own EU=11.0 with opponent expected EU=15.5 (fair share threshold=10.0)
+  RESPONSE  : CounterProposal(by=B, round=3 -> Proposal(round=3, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}]))
+  reasoning : Rejected: utility=2.0 < threshold=9.5. Counter-proposing.
+  [Belief update] A observes B's self-allocation: {'book': 1, 'hat': 2, 'ball': 1}
+
+--- Round 4 | Proposer: B ---
+  PROPOSAL  : Proposal(round=4, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}])
+  reasoning : Maximised own EU=11.0 with opponent expected EU=16.0 (fair share threshold=13.5)
+  RESPONSE  : CounterProposal(by=A, round=4 -> Proposal(round=4, by=A, [A: {'book': 3, 'hat': 0, 'ball': 1} | B: {'book': 0, 'hat': 2, 'ball': 0}]))
+  reasoning : Rejected: utility=2.0 < threshold=6.5. Counter-proposing.
+  [Belief update] B observes A's self-allocation: {'book': 3, 'hat': 0, 'ball': 1}
+
+--- Round 5 | Proposer: A ---
+  PROPOSAL  : Proposal(round=5, by=A, [A: {'book': 3, 'hat': 0, 'ball': 1} | B: {'book': 0, 'hat': 2, 'ball': 0}])
+  reasoning : Maximised own EU=11.0 with opponent expected EU=15.9 (fair share threshold=10.0)
+  RESPONSE  : CounterProposal(by=B, round=5 -> Proposal(round=5, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}]))
+  reasoning : Rejected: utility=2.0 < threshold=9.5. Counter-proposing.
+  [Belief update] A observes B's self-allocation: {'book': 1, 'hat': 2, 'ball': 1}
+
+--- Round 6 | Proposer: B ---
+  PROPOSAL  : Proposal(round=6, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}])
+  reasoning : Maximised own EU=11.0 with opponent expected EU=16.0 (fair share threshold=13.5)
+  RESPONSE  : CounterProposal(by=A, round=6 -> Proposal(round=6, by=A, [A: {'book': 3, 'hat': 0, 'ball': 1} | B: {'book': 0, 'hat': 2, 'ball': 0}]))
+  reasoning : Rejected: utility=2.0 < threshold=6.5. Counter-proposing.
+  [Belief update] B observes A's self-allocation: {'book': 3, 'hat': 0, 'ball': 1}
+
+--- Round 7 | Proposer: A ---
+  PROPOSAL  : Proposal(round=7, by=A, [A: {'book': 3, 'hat': 0, 'ball': 1} | B: {'book': 0, 'hat': 2, 'ball': 0}])
+  reasoning : Maximised own EU=11.0 with opponent expected EU=16.0 (fair share threshold=10.0)
+  RESPONSE  : CounterProposal(by=B, round=7 -> Proposal(round=7, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}]))
+  reasoning : Rejected: utility=2.0 < threshold=9.5. Counter-proposing.
+  [Belief update] A observes B's self-allocation: {'book': 1, 'hat': 2, 'ball': 1}
+
+--- Round 8 | Proposer: B ---
+  PROPOSAL  : Proposal(round=8, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}])
+  reasoning : Maximised own EU=11.0 with opponent expected EU=16.0 (fair share threshold=13.5)
+  RESPONSE  : CounterProposal(by=A, round=8 -> Proposal(round=8, by=A, [A: {'book': 3, 'hat': 0, 'ball': 1} | B: {'book': 0, 'hat': 2, 'ball': 0}]))
+  reasoning : Rejected: utility=2.0 < threshold=6.5. Counter-proposing.
+  [Belief update] B observes A's self-allocation: {'book': 3, 'hat': 0, 'ball': 1}
+
+--- Round 9 | Proposer: A ---
+  PROPOSAL  : Proposal(round=9, by=A, [A: {'book': 3, 'hat': 0, 'ball': 1} | B: {'book': 0, 'hat': 2, 'ball': 0}])
+  reasoning : Maximised own EU=11.0 with opponent expected EU=16.0 (fair share threshold=10.0)
+  RESPONSE  : CounterProposal(by=B, round=9 -> Proposal(round=9, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}]))
+  reasoning : Rejected: utility=2.0 < threshold=9.5. Counter-proposing.
+  [Belief update] A observes B's self-allocation: {'book': 1, 'hat': 2, 'ball': 1}
+
+--- Round 10 | Proposer: B ---
+  PROPOSAL  : Proposal(round=10, by=B, [A: {'book': 2, 'hat': 0, 'ball': 0} | B: {'book': 1, 'hat': 2, 'ball': 1}])
+  reasoning : Maximised own EU=11.0 with opponent expected EU=16.0 (fair share threshold=13.5)
+  RESPONSE  : CounterProposal(by=A, round=10 -> Proposal(round=10, by=A, [A: {'book': 3, 'hat': 0, 'ball': 1} | B: {'book': 0, 'hat': 2, 'ball': 0}]))
+  reasoning : Rejected: utility=2.0 < threshold=6.5. Counter-proposing.
+  [Belief update] B observes A's self-allocation: {'book': 3, 'hat': 0, 'ball': 1}
+
+
+  !! Max rounds (10) reached — no deal (timeout)
+=== Game Result ===
+  Outcome       : NO DEAL (timeout)
+  Rounds used   : 10
+  Utilities     : threat point activated — both agents receive 0

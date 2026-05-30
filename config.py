@@ -25,7 +25,7 @@ load_dotenv(_PROJECT_ROOT / ".env")
 
 # Default model: Gemini 1.5 Flash (free tier on Google AI Studio)
 # Swap to "gemini-1.5-pro" for higher reasoning quality at higher cost
-GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 # The API key is loaded from .env — never set a fallback string here
 GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
@@ -77,6 +77,11 @@ LLM_RETRY_BACKOFF: float = float(os.getenv("LLM_RETRY_BACKOFF", "2.0"))
 # Generation temperature: 0.0 = deterministic, higher = more creative
 # Keep low for game-theory agents — we want rational, consistent play
 LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.2"))
+
+# Minimum seconds between consecutive LIVE API calls (RPM safety throttle).
+# Even with billing enabled, this protects against strict requests-per-minute
+# spikes during a multi-game live run. 4.0s → max ~15 calls/min.
+LLM_REQUEST_DELAY: float = float(os.getenv("LLM_REQUEST_DELAY", "4.0"))
 
 
 # ── Architecture note: llm/gemini_client.py ──────────────────────────────────

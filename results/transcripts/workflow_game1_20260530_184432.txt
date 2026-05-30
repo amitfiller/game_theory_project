@@ -1,0 +1,39 @@
+=== Negotiation Start ===
+    Item pool : {'book': 3, 'hat': 2, 'ball': 1}
+    Max rounds: 10
+
+--- Round 1 | Proposer: A ---
+  PROPOSAL  : Proposal(round=1, by=A, [A: {'book': 1, 'hat': 1, 'ball': 1} | B: {'book': 2, 'hat': 1, 'ball': 0}])
+  reasoning : [Gemini|workflow] My private valuations are: book=4, hat=2, ball=4. The estimated opponent valuations are: [...]
+  RESPONSE  : CounterProposal(by=B, round=1 -> Proposal(round=1, by=B, [B: {'book': 1, 'hat': 1, 'ball': 1} | A: {'book': 2, 'hat': 1, 'ball': 0}]))
+  reasoning : [Gemini|workflow] The initial offer did not meet my fair share (9.0 pts vs 9.5 pts). My counter-proposal aims to [...]
+  [Belief update] A observes B's self-allocation: {'book': 1, 'hat': 1, 'ball': 1}
+
+--- Round 2 | Proposer: B ---
+  PROPOSAL  : Proposal(round=2, by=B, [B: {'book': 0, 'hat': 2, 'ball': 1} | A: {'book': 3, 'hat': 0, 'ball': 0}])
+  reasoning : [Gemini|workflow] Following the workflow, I first estimated the opponent's valuations (book≈3.4, hat≈3.3, [...]
+  RESPONSE  : Accept(by=A, round=2)
+  reasoning : [Gemini|workflow] My utility for the offered bundle is 12 points (3 books * 4 pts/book). My fair share is 10 [...]
+
+  !! DEAL reached in round 2!
+--- Metrics Report ---
+  Utilities       : {'A': 12.0, 'B': 16.0}
+  Fair shares     : {'A': 10.0, 'B': 9.5}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 28.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : True
+  Above threat pt : True
+=== Game Result ===
+  Outcome       : DEAL (deal)
+  Rounds used   : 2
+  --- Metrics Report ---
+  Utilities       : {'A': 12.0, 'B': 16.0}
+  Fair shares     : {'A': 10.0, 'B': 9.5}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 28.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : True
+  Above threat pt : True
