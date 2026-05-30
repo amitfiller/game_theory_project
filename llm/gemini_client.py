@@ -20,11 +20,21 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Literal, Optional, Type, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from google import genai
 from google.genai import types
 
 import config
+
+
+class EmptyResponseError(ValueError):
+    """
+    Raised when Gemini returns a response with no usable text part.
+
+    A "thinking" model can spend its output budget on internal reasoning and
+    return a candidate whose `.text` is None or empty. We treat this as a
+    CONTENT error (eligible for a temperature-bumped retry), not a network error.
+    """
 
 # ─────────────────────────────────────────────
 # Pydantic schemas  (must match Phase 2 message types exactly)
@@ -144,9 +154,13 @@ class GeminiClient:
             Passing response_schema=schema forces Gemini to return JSON that
             exactly matches the Pydantic model — no regex parsing needed.
 
-        Retry:
-            On 429 (rate limit) or 503 (overload), wait and retry up to
-            config.LLM_MAX_RETRIES times with exponential backoff.
+        Retry strategy:
+            - Network/transient errors (429 rate-limit, 503 overload): retry at
+              the base temperature with exponential backoff.
+            - CONTENT errors (empty text, invalid/!schema JSON): retry with a
+              BUMPED temperature (config.LLM_RETRY_TEMPERATURE) so a deterministic
+              temp-0 failure is not simply reproduced. The raw failed response is
+              logged for post-mortem diagnosis.
         """
         if self.dry_run:
             return self._dry_run_response(schema)
@@ -157,8 +171,19 @@ class GeminiClient:
 
         full_prompt = f"{system_prompt}\n\n{turn_prompt}"
         last_exc: Optional[Exception] = None
+        # When the previous failure was a CONTENT error we raise the temperature
+        # on the next attempt to escape the deterministic failure loop.
+        bump_temperature = False
+
+        # Content failures are eligible for the temperature-bump retry.
+        content_errors = (EmptyResponseError, ValidationError, ValueError)
 
         for attempt in range(1, config.LLM_MAX_RETRIES + 1):
+            temperature = (
+                config.LLM_RETRY_TEMPERATURE if bump_temperature
+                else config.LLM_TEMPERATURE
+            )
+            response = None
             try:
                 response = self._client.models.generate_content(
                     model=config.GEMINI_MODEL,
@@ -166,20 +191,48 @@ class GeminiClient:
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
                         response_schema=schema,
-                        temperature=config.LLM_TEMPERATURE,
+                        temperature=temperature,
                     ),
                 )
+
+                # Explicit empty/truncated guard. A thinking model can return a
+                # candidate with no text part → response.text is None or "".
                 raw_text = response.text
+                if not raw_text or not raw_text.strip():
+                    raise EmptyResponseError(
+                        f"Gemini returned no text "
+                        f"(finish_reason={self._finish_reason(response)})."
+                    )
+
                 parsed = schema.model_validate_json(raw_text)
-                self._log_call(system_prompt, turn_prompt, raw_text, attempt)
+                self._log_call(system_prompt, turn_prompt, raw_text, attempt,
+                               temperature=temperature, ok=True)
                 return parsed
 
-            except Exception as exc:
+            except content_errors as exc:
+                # CONTENT failure → log the raw response, bump temp on next try.
                 last_exc = exc
+                bump_temperature = True
+                raw = self._safe_text(response)
+                self._log_call(system_prompt, turn_prompt, raw, attempt,
+                               temperature=temperature, ok=False, error=repr(exc))
                 wait = config.LLM_RETRY_BACKOFF * (2 ** (attempt - 1))
                 print(
-                    f"    [Gemini] Attempt {attempt}/{config.LLM_MAX_RETRIES} failed "
-                    f"({type(exc).__name__}). Retrying in {wait:.1f}s..."
+                    f"    [Gemini] Attempt {attempt}/{config.LLM_MAX_RETRIES} CONTENT "
+                    f"error ({type(exc).__name__}). Retrying in {wait:.1f}s "
+                    f"at temp={config.LLM_RETRY_TEMPERATURE}..."
+                )
+                time.sleep(wait)
+
+            except Exception as exc:
+                # NETWORK/transient failure → keep base temp, exponential backoff.
+                last_exc = exc
+                self._log_call(system_prompt, turn_prompt, self._safe_text(response),
+                               attempt, temperature=temperature, ok=False, error=repr(exc))
+                wait = config.LLM_RETRY_BACKOFF * (2 ** (attempt - 1))
+                print(
+                    f"    [Gemini] Attempt {attempt}/{config.LLM_MAX_RETRIES} network "
+                    f"error ({type(exc).__name__}). Retrying in {wait:.1f}s..."
                 )
                 time.sleep(wait)
 
@@ -187,6 +240,36 @@ class GeminiClient:
             f"Gemini API failed after {config.LLM_MAX_RETRIES} attempts. "
             f"Last error: {last_exc}"
         )
+
+    # ── response helpers ──────────────────────────────────────────────
+
+    @staticmethod
+    def _finish_reason(response) -> str:
+        """Best-effort extraction of the candidate finish_reason for diagnostics."""
+        try:
+            return str(response.candidates[0].finish_reason)
+        except Exception:
+            return "unknown"
+
+    @staticmethod
+    def _safe_text(response) -> str:
+        """
+        Best-effort extraction of raw text from a (possibly malformed) response,
+        for failure logging. Never raises.
+        """
+        if response is None:
+            return ""
+        try:
+            if response.text:
+                return response.text
+        except Exception:
+            pass
+        # Fall back to digging the first candidate's parts directly.
+        try:
+            parts = response.candidates[0].content.parts
+            return "".join(getattr(p, "text", "") or "" for p in parts)
+        except Exception:
+            return ""
 
     # ── RPM throttle ──────────────────────────────────────────────────
 
@@ -234,20 +317,31 @@ class GeminiClient:
         turn_prompt: str,
         raw_response: str,
         attempt: int,
+        temperature: float,
+        ok: bool,
+        error: Optional[str] = None,
     ) -> None:
         """
         Append one API call record to the session JSONL log.
 
+        BOTH successful and failed calls are logged. On failure the raw (often
+        empty or malformed) response is captured under `response` and the
+        exception under `error`, so empty-text / truncation problems can be
+        diagnosed after the fact instead of being silently swallowed.
+
         We store the FULL prompts and response (no truncation). Each line is a
-        json.dumps(...) of the record, so the .jsonl stays strictly valid JSON
-        and the nested `response` field remains a parseable JSON document — you
-        can json.loads(record["response"]) without hitting truncated strings.
+        json.dumps(...) of the record, so the .jsonl stays strictly valid JSON;
+        for a successful call the nested `response` field is itself a parseable
+        JSON document (json.loads(record["response"]) works).
         """
         record = {
             "id": str(uuid.uuid4()),
             "ts": datetime.now().isoformat(),
             "model": config.GEMINI_MODEL,
             "attempt": attempt,
+            "temperature": temperature,
+            "ok": ok,
+            "error": error,
             "system_prompt": system_prompt,
             "turn_prompt": turn_prompt,
             "response": raw_response,

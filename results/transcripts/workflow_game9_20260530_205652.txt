@@ -1,0 +1,33 @@
+=== Negotiation Start ===
+    Item pool : {'book': 3, 'hat': 2, 'ball': 1}
+    Max rounds: 10
+
+--- Round 1 | Proposer: A ---
+  PROPOSAL  : Proposal(round=1, by=A, [A: {'book': 3, 'hat': 0, 'ball': 0} | B: {'book': 0, 'hat': 2, 'ball': 1}])
+  reasoning : [Gemini|workflow] Based on my belief that the opponent values the ball highest (3.5), followed by books (3.2) and [...]
+  [Belief update] B observes A's self-allocation: {'book': 3, 'hat': 0, 'ball': 0}
+  RESPONSE  : Accept(by=B, round=1)
+  reasoning : [Gemini|workflow] My utility for the proposed bundle is 9 points, which meets my fair share threshold of 9 points. [...]
+
+  !! DEAL reached in round 1!
+--- Metrics Report ---
+  Utilities       : {'A': 18.0, 'B': 9.0}
+  Fair shares     : {'A': 12.0, 'B': 9.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 27.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : True
+  Above threat pt : True
+=== Game Result ===
+  Outcome       : DEAL (deal)
+  Rounds used   : 1
+  --- Metrics Report ---
+  Utilities       : {'A': 18.0, 'B': 9.0}
+  Fair shares     : {'A': 12.0, 'B': 9.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 27.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : True
+  Above threat pt : True

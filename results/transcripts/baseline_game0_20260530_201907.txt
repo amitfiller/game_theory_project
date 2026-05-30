@@ -1,0 +1,47 @@
+=== Negotiation Start ===
+    Item pool : {'book': 3, 'hat': 2, 'ball': 1}
+    Max rounds: 10
+
+--- Round 1 | Proposer: A ---
+  PROPOSAL  : Proposal(round=1, by=A, [A: {'book': 2, 'hat': 1, 'ball': 1} | B: {'book': 1, 'hat': 1}])
+  reasoning : [Gemini|baseline] This is an opening offer that aims for a balanced distribution of items, giving both parties a [...]
+  [Belief update] B observes A's self-allocation: {'book': 2, 'hat': 1, 'ball': 1}
+  RESPONSE  : CounterProposal(by=B, round=1 -> Proposal(round=1, by=B, [B: {'ball': 1, 'hat': 1} | A: {'book': 3, 'hat': 1}]))
+  reasoning : [Gemini|baseline] The current offer is not equitable and does not reflect my valuation of the items. I am [...]
+
+--- Round 2 | Proposer: B ---
+  PROPOSAL  : Proposal(round=2, by=B, [B: {'hat': 2} | A: {'ball': 1, 'book': 3}])
+  reasoning : [Gemini|baseline] I am proposing a new split where I receive both hats, which are valuable to me. In return, I am [...]
+  [Belief update] A observes B's self-allocation: {'hat': 2}
+  RESPONSE  : CounterProposal(by=A, round=2 -> Proposal(round=2, by=A, [A: {'book': 3, 'hat': 1} | B: {'ball': 1, 'hat': 1}]))
+  reasoning : [Gemini|baseline] Your previous counter-proposal was more appealing to me. I would prefer to receive a hat instead [...]
+
+--- Round 3 | Proposer: A ---
+  PROPOSAL  : Proposal(round=3, by=A, [A: {'book': 3, 'ball': 1} | B: {'hat': 2}])
+  reasoning : [Gemini|baseline] I am proposing an allocation that is very similar to your offer in Round 2. I believe this is a [...]
+  [Belief update] B observes A's self-allocation: {'book': 3, 'ball': 1}
+  RESPONSE  : Accept(by=B, round=3)
+  reasoning : [Gemini|baseline] This offer provides me with 8 points, which is a good outcome. It is also the exact proposal I [...]
+
+  !! DEAL reached in round 3!
+--- Metrics Report ---
+  Utilities       : {'A': 22.0, 'B': 8.0}
+  Fair shares     : {'A': 13.0, 'B': 8.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 30.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : False
+  Above threat pt : True
+=== Game Result ===
+  Outcome       : DEAL (deal)
+  Rounds used   : 3
+  --- Metrics Report ---
+  Utilities       : {'A': 22.0, 'B': 8.0}
+  Fair shares     : {'A': 13.0, 'B': 8.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 30.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : False
+  Above threat pt : True

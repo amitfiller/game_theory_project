@@ -1,0 +1,33 @@
+=== Negotiation Start ===
+    Item pool : {'book': 3, 'hat': 2, 'ball': 1}
+    Max rounds: 10
+
+--- Round 1 | Proposer: A ---
+  PROPOSAL  : Proposal(round=1, by=A, [A: {'book': 2, 'hat': 1, 'ball': 0} | B: {'book': 1, 'hat': 1, 'ball': 1}])
+  reasoning : [Gemini|workflow] [DRY RUN] Canned proposal.
+  [Belief update] B observes A's self-allocation: {'book': 2, 'hat': 1, 'ball': 0}
+  RESPONSE  : Accept(by=B, round=1)
+  reasoning : [Gemini|workflow] [DRY RUN] Canned accept.
+
+  !! DEAL reached in round 1!
+--- Metrics Report ---
+  Utilities       : {'A': 17.0, 'B': 10.0}
+  Fair shares     : {'A': 13.5, 'B': 11.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 27.00
+  Envy-free       : False
+  Proportional    : False
+  Pareto-optimal  : False
+  Above threat pt : True
+=== Game Result ===
+  Outcome       : DEAL (deal)
+  Rounds used   : 1
+  --- Metrics Report ---
+  Utilities       : {'A': 17.0, 'B': 10.0}
+  Fair shares     : {'A': 13.5, 'B': 11.0}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 27.00
+  Envy-free       : False
+  Proportional    : False
+  Pareto-optimal  : False
+  Above threat pt : True

@@ -25,6 +25,13 @@ load_dotenv(_PROJECT_ROOT / ".env")
 
 # Default model: Gemini 1.5 Flash (free tier on Google AI Studio)
 # Swap to "gemini-1.5-pro" for higher reasoning quality at higher cost
+# Default to gemini-2.5-flash. (gemini-2.0-flash was de-listed by Google for new
+# API users — it now returns 404 NOT_FOUND, which silently routed every turn to
+# the heuristic fallback.) 2.5-flash is a "thinking" model that can occasionally
+# truncate JSON on long workflow prompts, but the client's smart-retry now
+# handles that: a content/EOF error triggers a temperature-bumped retry
+# (0.0 -> LLM_RETRY_TEMPERATURE) that breaks the deterministic failure and
+# recovers on the next attempt. So we get a live, available model AND stability.
 GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 # The API key is loaded from .env — never set a fallback string here
@@ -79,6 +86,12 @@ LLM_RETRY_BACKOFF: float = float(os.getenv("LLM_RETRY_BACKOFF", "2.0"))
 # rationally and consistently, and a fixed temperature makes live runs as
 # replayable as the API allows (transcripts are still archived as ground truth).
 LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.0"))
+
+# Temperature used ONLY on a retry that follows a content/validation error.
+# At temperature 0.0 the model is deterministic, so retrying a malformed or
+# empty response just reproduces the same failure. Bumping the temperature on
+# the retry breaks that deterministic loop and gives the model a fresh sample.
+LLM_RETRY_TEMPERATURE: float = float(os.getenv("LLM_RETRY_TEMPERATURE", "0.4"))
 
 # Minimum seconds between consecutive LIVE API calls (RPM safety throttle).
 # Even with billing enabled, this protects against strict requests-per-minute

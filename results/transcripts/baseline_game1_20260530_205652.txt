@@ -1,0 +1,61 @@
+=== Negotiation Start ===
+    Item pool : {'book': 3, 'hat': 2, 'ball': 1}
+    Max rounds: 10
+
+--- Round 1 | Proposer: A ---
+  PROPOSAL  : Proposal(round=1, by=A, [A: {'ball': 1, 'book': 1, 'hat': 1} | B: {'book': 2, 'hat': 1}])
+  reasoning : [Gemini|baseline] This initial proposal aims to distribute the items fairly, ensuring both parties receive a mix [...]
+  [Belief update] B observes A's self-allocation: {'ball': 1, 'book': 1, 'hat': 1}
+  RESPONSE  : CounterProposal(by=B, round=1 -> Proposal(round=1, by=B, [B: {'ball': 1, 'book': 1, 'hat': 1} | A: {'book': 2, 'hat': 1}]))
+  reasoning : [Gemini|baseline] Your offer gives me only 7 points, which is less than half of the total value. I am proposing a [...]
+
+--- Round 2 | Proposer: B ---
+  PROPOSAL  : Proposal(round=2, by=B, [B: {'ball': 1, 'hat': 1} | A: {'book': 3, 'hat': 1}])
+  reasoning : [Gemini|baseline] My previous counter-proposal was quite aggressive. To show flexibility and move towards a deal, [...]
+  [Belief update] A observes B's self-allocation: {'ball': 1, 'hat': 1}
+  RESPONSE  : CounterProposal(by=A, round=2 -> Proposal(round=2, by=A, [A: {'ball': 1, 'book': 1} | B: {'book': 2, 'hat': 2}]))
+  reasoning : [Gemini|baseline] Your offer gives me 7 points, which is an improvement over your last counter, but still not [...]
+
+--- Round 3 | Proposer: A ---
+  PROPOSAL  : Proposal(round=3, by=A, [A: {'ball': 1, 'hat': 1} | B: {'book': 3, 'hat': 1}])
+  reasoning : [Gemini|baseline] I am proposing a compromise from my last offer. I am willing to give up all the books to you, [...]
+  [Belief update] B observes A's self-allocation: {'ball': 1, 'hat': 1}
+  RESPONSE  : CounterProposal(by=B, round=3 -> Proposal(round=3, by=B, [B: {'book': 2, 'hat': 2} | A: {'ball': 1, 'book': 1}]))
+  reasoning : [Gemini|baseline] Your current offer gives me 9 points, which is less than the 10 points I was offered in the [...]
+
+--- Round 4 | Proposer: B ---
+  PROPOSAL  : Proposal(round=4, by=B, [B: {'book': 3, 'hat': 1} | A: {'ball': 1, 'hat': 1}])
+  reasoning : [Gemini|baseline] I am proposing a deal that reflects your previous offer from Round 3. I believe this is a fair [...]
+  [Belief update] A observes B's self-allocation: {'book': 3, 'hat': 1}
+  RESPONSE  : CounterProposal(by=A, round=4 -> Proposal(round=4, by=A, [A: {'ball': 1, 'book': 1} | B: {'book': 2, 'hat': 2}]))
+  reasoning : [Gemini|baseline] I am countering this offer. While it matches my previous proposal, I believe we can reach a more [...]
+
+--- Round 5 | Proposer: A ---
+  PROPOSAL  : Proposal(round=5, by=A, [A: {'ball': 1, 'book': 1} | B: {'book': 2, 'hat': 2}])
+  reasoning : [Gemini|baseline] I am proposing a deal that is consistent with the counter-proposals you have made in previous [...]
+  [Belief update] B observes A's self-allocation: {'ball': 1, 'book': 1}
+  RESPONSE  : Accept(by=B, round=5)
+  reasoning : [Gemini|baseline] This offer provides me with 10 points, which is a very good outcome for me. Given that Agent A [...]
+
+  !! DEAL reached in round 5!
+--- Metrics Report ---
+  Utilities       : {'A': 9.0, 'B': 10.0}
+  Fair shares     : {'A': 7.5, 'B': 8.5}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 19.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : True
+  Above threat pt : True
+=== Game Result ===
+  Outcome       : DEAL (deal)
+  Rounds used   : 5
+  --- Metrics Report ---
+  Utilities       : {'A': 9.0, 'B': 10.0}
+  Fair shares     : {'A': 7.5, 'B': 8.5}
+  Threat point    : {'A': 0.0, 'B': 0.0}
+  Social welfare  : 19.00
+  Envy-free       : True
+  Proportional    : True
+  Pareto-optimal  : True
+  Above threat pt : True
