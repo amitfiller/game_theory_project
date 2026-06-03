@@ -1,0 +1,18 @@
+# ── Runtime dependencies (the live Gemini experiment) ──────────────────────────
+# Google GenAI SDK — the Gemini client (imported as `from google import genai`)
+google-genai>=0.3.0
+
+# Structured Outputs — Pydantic schemas force Gemini to return valid JSON
+pydantic>=2.0
+
+# Loads the GEMINI_API_KEY from the local .env file
+python-dotenv>=1.0.0
+
+# ── Development / testing (optional) ────────────────────────────────────────────
+# Test runner. Not required for `--dry-run` or for `python test_core.py`,
+# but recommended so `pytest` discovers and runs the whole suite.
+pytest>=7.0
+
+# NOTE: everything else used by the project (os, json, math, random, itertools,
+# argparse, datetime, pathlib, dataclasses, typing, abc, uuid, textwrap, time)
+# is part of the Python standard library — no installation needed.
